@@ -1,15 +1,94 @@
 <div class="container">
-    <ul class="list-friend">
-        <li class="friend">
-            <i class='bx bx-user'></i>
-            Duy
-        </li>
-        <li class="friend">
-            <i class='bx bx-user'></i>
-            Hoàng
-        </li>
-    </ul>
-    <div class="camera">
-        <video id="video" width="100%" controls></video>
-    </div>
+  <ul class="list-friend" id="list-friend">
+  </ul>
+  <div class="camera">
+    <video id="localVideo" autoplay playsinline></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+  </div>
 </div>
+
+<script>
+  const socket = io('http://localhost:8000', { transports: ['websocket', 'polling', 'flashsocket'] }  );
+  const peer = new Peer();
+
+  const listUsers = document.getElementById('list-friend');
+  let yourID;
+  let userName = '{{userName}}';
+
+  socket.on('LIST_USERS', users => {
+    users.forEach(user => {
+      const li = document.createElement('li');
+      li.id = user.id;
+      li.className = 'friend';
+      li.innerHTML = `<i class="bx bx-user"></i>
+      <p val="${user.userName}" id="${user.id}">${user.userName}</p>
+      <i class='bx bxs-video video'></i>`;
+
+      li.addEventListener('click', () => {
+        openStream()
+          .then(stream => {
+            playStream('localVideo', stream);
+            const calling = peer.call(user.id, stream);
+            calling.on('stream', remoteStream => playStream('remoteVideo',remoteStream));
+      }); 
+    })
+      listUsers.appendChild(li);
+    });
+
+    socket.on('NEW_USER_CHECKIN', user => {
+      const li = document.createElement('li');
+      li.id = user.id;
+      li.className = 'friend';
+      li.innerHTML = `<i class="bx bx-user"></i>
+      <p val="${user.userName}" id="${user.id}">${user.userName}</p>
+      <i class='bx bxs-video video'></i>`;
+
+      li.addEventListener('click', () => {
+        openStream()
+          .then(stream => {
+            playStream('localVideo', stream);
+            const calling = peer.call(user.id, stream);
+            calling.on('stream', remoteStream => playStream('remoteVideo',remoteStream))});
+      });
+      listUsers.appendChild(li);
+    });
+
+    socket.on('SOMEONE_DISCONNECT', peerId => {
+      lis = listUsers.querySelectorAll('li');
+      lis.forEach(li => {
+        if(li.id == peerId){
+          li.remove();
+        }
+      });
+    });
+  });
+
+
+  function openStream() {
+    const config = { audio: true, video: true };
+    return navigator.mediaDevices.getUserMedia(config);
+  }
+
+  function playStream(idVideoTag, stream) {
+    const video = document.getElementById(idVideoTag);
+    video.srcObject = stream;
+    video.play();
+  }
+
+  openStream()
+    .then(stream => playStream('localVideo', stream));
+
+  peer.on('open', id => {
+    yourID = id;
+    socket.emit('NEW_USER', {id: yourID, userName})
+  });
+
+  peer.on('call', call => {
+    openStream()
+      .then(stream => {
+        call.answer(stream);
+        playStream('localVideo', stream);
+        call.on('stream', remoteStream => playStream('remoteVideo', remoteStream));
+      })
+  })
+</script>

@@ -1,8 +1,11 @@
+
 class HomeController {
 
-    //[GET] /sign-in
-    index (req, res) {
-        res.render('home', {style: 'home', title: 'Home'});
+    index(req, res) {
+        if (!req.session.userName) {
+            res.redirect('/sign-in');
+        }
+        res.render('home', { style: 'home', title: 'Home', userName: req.session.userName});
     }
 }
 

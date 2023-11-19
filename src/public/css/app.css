@@ -30,13 +30,6 @@ body{
     padding-right: 10px;
 }
 
-.container{
-    padding-top: 35px;
-    min-height: 500px;
-    background: url('../img/bg.jfif');
-    display: flex;
-}
-
 .footer {
     z-index: 100;
     position: absolute;

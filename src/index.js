@@ -4,11 +4,19 @@ const app = express();
 const port = 3000;
 const path = require('path');
 const { engine } = require("express-handlebars");
-
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 
 const route = require('./routes');
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(cookieParser());
+app.use(session({
+    secret: 'qduy17',
+    resave: true,
+    saveUninitialized: true
+  }));
 
 app.use(express.urlencoded({
     extended: true
