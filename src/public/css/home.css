@@ -1,7 +1,6 @@
 .container{
     padding-top: 40px;
     min-height: 500px;
-    max-height: 800px;
     background: url('../img/bg-1.jfif');
     display: flex;
     flex-direction: row;

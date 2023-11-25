@@ -8,7 +8,8 @@
 </div>
 
 <script>
-  const socket = io('http://localhost:8000', { transports: ['websocket', 'polling', 'flashsocket'] }  );
+  const socket = io('https://web-chat-1709-89546ee1bcc8.herokuapp.com/', { transports: ['websocket', 'polling', 'flashsocket'] } );
+  
   const peer = new Peer();
 
   const listUsers = document.getElementById('list-friend');
@@ -29,7 +30,7 @@
           .then(stream => {
             playStream('localVideo', stream);
             const calling = peer.call(user.id, stream);
-            calling.on('stream', remoteStream => playStream('remoteVideo',remoteStream));
+            calling.on('stream', remoteStream => playStream('remoteVideo', remoteStream));
       }); 
     })
       listUsers.appendChild(li);

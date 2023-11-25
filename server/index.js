@@ -1,11 +1,12 @@
-const io = require('socket.io')(8000);
+const io = require('socket.io')(process.env.PORT || 8000);
+
 const users = [];
 
 io.on('connection', socket => {
     socket.on('NEW_USER', user => {
         socket.peerId = user.id
         users.push(user);
-        socket.emit('LIST_USERS', users);
+        socket.emit('LIST_USERS', Array.from(users.values()));
         socket.broadcast.emit('NEW_USER_CHECKIN', user);
     })
 
@@ -15,3 +16,5 @@ io.on('connection', socket => {
         io.emit('SOMEONE_DISCONNECT', socket.peerId);
     })
 });
+
+console.log('Server is running');
